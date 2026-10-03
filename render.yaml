@@ -1,0 +1,28 @@
+databases:
+  - name: sh4d0w-db
+    plan: free
+services:
+  - type: web
+    name: sh4d0w-web
+    runtime: docker
+    healthCheckPath: /api/health
+    envVars:
+      - { key: DATABASE_URL, fromDatabase: { name: sh4d0w-db, property: connectionString } }
+      - { key: DATABASE_SSL, value: "true" }
+      - { key: JWT_SECRET, generateValue: true }
+      - { key: BASE_DOMAIN, sync: false }
+      - { key: S3_BUCKET, sync: false }
+      - { key: S3_ACCESS_KEY_ID, sync: false }
+      - { key: S3_SECRET_ACCESS_KEY, sync: false }
+      - { key: S3_ENDPOINT, sync: false }
+  - type: worker
+    name: sh4d0w-worker
+    runtime: docker
+    dockerCommand: npm run worker
+    envVars:
+      - { key: DATABASE_URL, fromDatabase: { name: sh4d0w-db, property: connectionString } }
+      - { key: DATABASE_SSL, value: "true" }
+      - { key: S3_BUCKET, sync: false }
+      - { key: S3_ACCESS_KEY_ID, sync: false }
+      - { key: S3_SECRET_ACCESS_KEY, sync: false }
+      - { key: S3_ENDPOINT, sync: false }

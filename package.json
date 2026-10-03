@@ -1,0 +1,25 @@
+{
+  "name": "sh4d0w-host",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "build": "node --check src/server.js && node --check src/worker.js",
+    "start": "node src/server.js",
+    "start:prod": "node scripts/migrate.js && node src/server.js",
+    "worker": "node src/worker.js",
+    "migrate": "node scripts/migrate.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.600.0",
+    "adm-zip": "^0.5.14",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mime-types": "^2.1.35",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.12.0"
+  }
+}

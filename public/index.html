@@ -1,0 +1,21 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>SH4D0W HOST</title>
+<style>body{font-family:system-ui,sans-serif;max-width:640px;margin:2rem auto;padding:0 1rem;background:#fafafa;color:#111}
+input,button{padding:.6rem;margin:.2rem 0;font:inherit}input{width:100%;box-sizing:border-box}
+button{background:#111;color:#fff;border:0;border-radius:6px;cursor:pointer}.card{background:#fff;border:1px solid #ddd;border-radius:8px;padding:1rem;margin:1rem 0}
+#err{color:#b00}a{color:#06c}</style></head><body>
+<h1>𝐒𝐇𝟒𝐃𝟎𝐖 𝐇𝐎𝐒𝐓</h1><p id="err"></p><div id="app"></div>
+<script>
+const $=s=>document.querySelector(s),err=m=>$('#err').textContent=m||'';
+const api=async(u,o={})=>{const f=o.body instanceof FormData;const r=await fetch(u,{method:o.method,headers:o.body&&!f?{'Content-Type':'application/json'}:{},body:f?o.body:o.body&&JSON.stringify(o.body)});const d=await r.json();if(!r.ok)throw new Error(d.error||'Error');return d};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function loginView(){$('#app').innerHTML='<div class=card><input id=e type=email placeholder=Email><input id=p type=password placeholder="Password (8+)"><button id=l>Login</button> <button id=r>Register</button></div>';
+for(const [id,u] of [['l','login'],['r','register']])$('#'+id).onclick=async()=>{try{err();await api('/api/auth/'+u,{method:'POST',body:{email:$('#e').value,password:$('#p').value}});home()}catch(x){err(x.message)}}}
+async function home(){let d;try{d=await api('/api/projects')}catch{return loginView()}
+$('#app').innerHTML='<div class=card><input id=n placeholder="Project name"><input id=s placeholder="subdomain (a-z, 0-9, -)"><button id=c>Create site</button> <button id=o>Logout</button></div>'+
+d.projects.map(p=>`<div class=card><b>${esc(p.name)}</b> — <a target=_blank href="https://${esc(p.slug)}.${esc(d.baseDomain)}">${esc(p.slug)}.${esc(d.baseDomain)}</a><br>${p.current_deployment?'Deployment #'+p.current_deployment:'Not deployed'}<br><input type=file accept=.zip data-id=${p.id}></div>`).join('');
+$('#c').onclick=async()=>{try{err();await api('/api/projects',{method:'POST',body:{name:$('#n').value,slug:$('#s').value}});home()}catch(x){err(x.message)}};
+$('#o').onclick=async()=>{await api('/api/auth/logout',{method:'POST'});loginView()};
+document.querySelectorAll('input[type=file]').forEach(i=>i.onchange=async()=>{try{err('Uploading...');const f=new FormData();f.append('zip',i.files[0]);await api(`/api/projects/${i.dataset.id}/deploy`,{method:'POST',body:f});err();home()}catch(x){err(x.message)}})}
+home();
+</script></body></html>
